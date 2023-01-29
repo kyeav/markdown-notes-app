@@ -2,14 +2,35 @@ import "./App.css";
 import Editor from "./components/Editor";
 import Sidebar from "./components/Sidebar";
 import Split from "react-split";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { nanoid } from "nanoid";
 
 function App() {
-  const [notes, setNotes] = useState<Array<{ id: string; body: string }>>([]);
+  /** sync notes w localStorage
+   *
+   * localStorage.getItem("key")
+   * localStorage.setItem("key", value)
+   *
+   * value must be a string
+   * if you have a more complex value like [] or {} to save, use:
+   *
+   * JSON.stringify(value)
+   * JSON.parse(stringifiedValue)
+   */
+
+  // lazy state initialisation
+  const [notes, setNotes] = useState(() => {
+    const notesFromLocalStorage = localStorage.getItem("notes");
+    return notesFromLocalStorage ? JSON.parse(notesFromLocalStorage) : [];
+  });
+
   const [currentNoteId, setCurrentNoteId] = useState(
     (notes[0] && notes[0].id) || ""
   );
+
+  useEffect(() => {
+    localStorage.setItem("notes", JSON.stringify(notes));
+  }, [notes]);
 
   const createNewNote = () => {
     const newNote = {
@@ -17,13 +38,13 @@ function App() {
       body: "# Type your markdown note's title here",
     };
 
-    setNotes((prevNotes) => [newNote, ...prevNotes]);
+    setNotes((prevNotes: any) => [newNote, ...prevNotes]);
     setCurrentNoteId(newNote.id);
   };
 
   const findCurrentNote = () => {
     return (
-      notes.find((note) => {
+      notes.find((note: any) => {
         return note.id === currentNoteId;
       }) || notes[0]
     );
@@ -42,7 +63,7 @@ function App() {
     //     ...prevNotes.slice(noteIndex + 1),
     //   ];
     // });
-    setNotes((oldNotes) => {
+    setNotes((oldNotes: any) => {
       const newArray: any = [];
       for (let i = 0; i < oldNotes.length; i++) {
         const oldNote = oldNotes[i];
@@ -68,7 +89,9 @@ function App() {
     //   const newCurrentNoteId = notes[0] ? notes[0].id : "";
     //   setCurrentNoteId(newCurrentNoteId);
     // }
-    setNotes((oldNotes) => oldNotes.filter((note) => note.id !== noteId));
+    setNotes((oldNotes: any) =>
+      oldNotes.filter((note: any) => note.id !== noteId)
+    );
   };
 
   return (

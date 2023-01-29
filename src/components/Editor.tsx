@@ -3,7 +3,7 @@ import ReactMde from "react-mde";
 import "react-mde/lib/styles/css/react-mde-all.css";
 import Showdown from "showdown";
 
-export default function Editor() {
+export default function Editor(props: any) {
   const [selectedTab, setSelectedTab] = useState<"write" | "preview">("write");
 
   const converter = new Showdown.Converter({
@@ -23,6 +23,8 @@ export default function Editor() {
         generateMarkdownPreview={(markdown) =>
           Promise.resolve(converter.makeHtml(markdown))
         }
+        value={props.currentNote.body}
+        onChange={props.updateNote}
       />
     </section>
   );
